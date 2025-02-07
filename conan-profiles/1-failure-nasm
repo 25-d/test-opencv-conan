@@ -1,0 +1,23 @@
+# build_type dependencies build type
+# &:build_type consumer build type
+
+# Reference from https://docs.conan.io/2/examples/dev_flow/tool_requires/mingw.html
+[settings]
+os=Windows
+arch=x86_64
+build_type=Release
+&:build_type=Debug
+compiler=gcc
+compiler.version=14.2
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
+
+[buildenv]
+PATH+=(path)D:/a/_temp/msys64/ucrt64/bin
+CC=D:/a/_temp/msys64/ucrt64/bin/gcc.exe
+CXX=D:/a/_temp/msys64/ucrt64/bin/g++.exe
+
+[conf]
+tools.cmake.cmake_layout:build_folder_vars=['settings.build_type']
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.microsoft.bash:subsystem=msys2

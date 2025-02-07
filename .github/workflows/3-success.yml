@@ -1,0 +1,50 @@
+name: 3-success
+
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build and test on Windows
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup MSYS2 and install dependencies
+        uses: msys2/setup-msys2@v2.26.0
+        with:
+            msystem: UCRT64
+            update: true
+            install: 
+              mingw-w64-ucrt-x86_64-gcc
+              mingw-w64-ucrt-x86_64-cmake 
+              mingw-w64-ucrt-x86_64-ninja
+              mingw-w64-ucrt-x86_64-clang-tools-extra
+              mingw-w64-ucrt-x86_64-doxygen
+              mingw-w64-ucrt-x86_64-python
+
+      - name: Install Conan
+        run: |
+          pacman -S --noconfirm mingw-w64-ucrt-x86_64-python-pip
+          pip install conan
+      
+      - name: Install dependency to build OpenCV from source
+        run: |
+          where gcc
+          where g++
+          pacman -S --noconfirm mingw-w64-ucrt-x86_64-nasm
+          where nasm
+
+      - name: Install Conan dependencies
+        run: |
+          export PKG_CONFIG_PATH=""
+          conan install . -r conancenter --update --build=missing --profile:all=conan-profiles/3-success 
